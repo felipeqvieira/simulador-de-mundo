@@ -1,26 +1,22 @@
-CC = gcc
-CFLAGS = -Wall -std=c99
+CFLAGS = -Wall -std=c99 -g
 LDFLAGS = -lm
+SRCDIR = src
+OBJDIR = obj
+SOURCES = $(wildcard $(SRCDIR)/*.c) $(wildcard $(SRCDIR)/**/*.c)
+OBJS = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SOURCES))
+CC = gcc
 
-# Lista de arquivos fonte
-SRCS = $(wildcard src/*.c)
+all: mundo
 
-# Lista de arquivos objeto (todos dentro de src, exceto main.o)
-OBJS = $(patsubst src/%.c, src/%.o, $(filter-out src/main.c, $(SRCS)))
+mundo: $(OBJS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-# Nome do executável
-EXEC = mundo
-
-all: $(EXEC)
-
-$(EXEC): $(OBJS) main.o
-	$(CC) $^ -o $@ $(LDFLAGS)
-
-src/%.o: src/%.c src/%.h
-	$(CC) $(CFLAGS) -c $< -o $@
-
-main.o: main.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	mkdir -p $(OBJDIR)
+	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:
-	rm -f $(OBJS) main.o $(EXEC)
+	rm -f $(OBJS)
+
+purge: clean
+	rm -f mundo
